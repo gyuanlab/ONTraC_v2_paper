@@ -58,15 +58,15 @@ ONTraC_analysis -o analysis_output/merfish_mouse1_slice221_20_neighbors_361ct_ke
 
 ## meta input only
 
-ONTraC --meta-input merfish_mouse1_slice221_24_subclass_meta.csv --preprocessing-dir data/V2_example_meta_input_preprocessing --GNN-dir output/V2_example_meta_input_GNN --NTScore-dir output/V2_example_meta_input_NTScore --embedding-adjust -s 42 --equal-space 2>&1 | tee log/V2_example_meta_input.log
-ONTraC_analysis -o analysis_output/V2_example_meta_input -l log/V2_example_meta_input.log --meta-input merfish_mouse1_slice221_24_subclass_meta.csv --preprocessing-dir data/V2_example_meta_input_preprocessing --GNN-dir output/V2_example_meta_input_GNN --NTScore-dir output/V2_example_meta_input_NTScore --suppress-cell-type-composition --suppress-niche-cluster-loadings
+ONTraC --meta-input merfish_mouse1_slice221_24_subclass_meta.csv --preprocessing-dir data/V2_example_meta_input_preprocessing --GNN-dir output/V2_example_meta_input_GNN --NTScore-dir output/V2_example_meta_input_NTScore -s 42 --equal-space 2>&1 | tee log/V2_example_meta_input.log
+ONTraC_analysis -o analysis_output/V2_example_meta_input -l log/V2_example_meta_input.log --preprocessing-dir data/V2_example_meta_input_preprocessing --GNN-dir output/V2_example_meta_input_GNN --NTScore-dir output/V2_example_meta_input_NTScore --suppress-cell-type-composition --suppress-niche-cluster-loadings
 
 ## meta data with given embeedings
 
 ONTraC --meta-input merfish_mouse1_slice221_24_subclass_meta.csv --embedding-input merfish_mouse1_slice221_embedding.csv --preprocessing-dir data/V2_example_embedding_input_preprocessing --GNN-dir output/V2_example_embedding_input_GNN --NTScore-dir output/V2_example_embedding_input_NTScore  --embedding-adjust -s 42 --equal-space 2>&1 | tee log/V2_example_embedding_input.log
-ONTraC_analysis -o analysis_output/V2_example_embedding_input -l log/V2_example_embedding_input.log --meta-input merfish_mouse1_slice221_24_subclass_meta.csv --embedding-input merfish_mouse1_slice221_embedding.csv --preprocessing-dir data/V2_example_embedding_input_preprocessing --GNN-dir output/V2_example_embedding_input_GNN --NTScore-dir output/V2_example_embedding_input_NTScore --suppress-cell-type-composition --suppress-niche-cluster-loadings
+ONTraC_analysis -o analysis_output/V2_example_embedding_input -l log/V2_example_embedding_input.log --preprocessing-dir data/V2_example_embedding_input_preprocessing --GNN-dir output/V2_example_embedding_input_GNN --NTScore-dir output/V2_example_embedding_input_NTScore --suppress-cell-type-composition --suppress-niche-cluster-loadings
 
 ## meta data with gene expression
 
 ONTraC --meta-input merfish_mouse1_slice221_24_subclass_meta.csv --exp-input mouse1_slice221_counts.csv --preprocessing-dir data/V2_example_exp_input_preprocessing --GNN-dir output/V2_example_exp_input_GNN --NTScore-dir output/V2_example_exp_input_NTScore --resolution 1 --embedding-adjust -s 42 --equal-space 2>&1 | tee log/V2_example_exp_input.log
-ONTraC_analysis -o analysis_output/V2_example_exp_input -l log/V2_example_exp_input.log --meta-input merfish_mouse1_slice221_24_subclass_meta.csv --exp-input mouse1_slice221_counts.csv --preprocessing-dir data/V2_example_exp_input_preprocessing --GNN-dir output/V2_example_exp_input_GNN --NTScore-dir output/V2_example_exp_input_NTScore --suppress-cell-type-composition --suppress-niche-cluster-loadings
+ONTraC_analysis -o analysis_output/V2_example_exp_input -l log/V2_example_exp_input.log --preprocessing-dir data/V2_example_exp_input_preprocessing --GNN-dir output/V2_example_exp_input_GNN --NTScore-dir output/V2_example_exp_input_NTScore --suppress-cell-type-composition --suppress-niche-cluster-loadings
