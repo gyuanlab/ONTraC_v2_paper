@@ -68,6 +68,12 @@ pca_table <- as.data.frame(getDimReduction(new_giotto_object,
                                            output = "matrix"))
 
 # create pca embeddings tables
+metadata_embeddings <- data.frame(Cell_ID = metadata$cell_ID,
+                                  Sample = metadata$patient,
+                                  Cell_Type = metadata$cell_type,
+                                  x = coordinates$sdimx,
+                                  y = coordinates$sdimy)
+
 embeddings_data <- data.frame(Cell_ID = metadata$cell_ID,
                               Embedding_1 = pca_table$Dim.1,
                               Embedding_2 = pca_table$Dim.2,
@@ -79,20 +85,10 @@ embeddings_data <- data.frame(Cell_ID = metadata$cell_ID,
                               Embedding_8 = pca_table$Dim.8,
                               Embedding_9 = pca_table$Dim.9,
                               Embedding_10 = pca_table$Dim.10)
+                              
+write.csv(metadata_embeddings, "metadata_embeddings.csv", row.names = FALSE)
 
-metadata_embeddings <- data.frame(Cell_ID = metadata$cell_ID,
-                                  Sample = metadata$patient,
-                                  Cell_Type = metadata$cell_type,
-                                  x = coordinates$sdimx,
-                                  y = coordinates$sdimy)
-
-write.table(embeddings_data, 
-            "embeddings_data.csv", sep = ",", 
-            quote = FALSE, row.names = FALSE, col.names = TRUE)
-
-write.table(metadata_embeddings, 
-            "metadata_embeddings.csv", sep = ",", 
-            quote = FALSE, row.names = FALSE, col.names = TRUE)
+write.csv(embeddings_data, "embeddings_data.csv", row.names = FALSE)
 
 ##%######################################################%##
 #                                                          #
@@ -103,22 +99,23 @@ write.table(metadata_embeddings,
 # Run ONTraC using pca embeddings
 
 ## bash code
+conda activate ONTraC_v2
+
 ONTraC --meta-input metadata_embeddings.csv \
 --embedding-input embeddings_data.csv \
---preprocessing-dir data_lung6_pca/lung_final_preprocessing_dir \
---GNN-dir output_lung6_pca/lung_final_GNN \
---NTScore-dir output_lung6_pca/lung_final_NTScore \
---device cpu --epochs 400 -s 42 --patience 100 \
---min-delta 0.001 --min-epochs 50 --lr 0.03 --hidden-feats 4 \
--k 4 --n-neighbors 200 --sigma 2 \
---beta 0.3 --equal-space 2>&1 | tee lung_final.log
+--NN-dir lung6/output/NN \
+--GNN-dir lung6/output/GNN \
+--NT-dir lung6/output/NT \
+--embedding-adjust True --device cpu --n-cpu 10 --epochs 400 -s 42 \
+--patience 100  --min-delta 0.001 --min-epochs 50 --lr 0.03 \
+--hidden-feats 4  -k 4 --n-neighbors 200 --embedding-adjust True \
+--beta 0.3 --equal-space 2>&1 > lung.log
 
 ONTraC_analysis --meta-input metadata_embeddings.csv \
---embedding-input embeddings_data.csv \
---preprocessing-dir data_lung6_pca/lung_final_preprocessing_dir \
---GNN-dir output_lung6_pca/lung_final_GNN \
---NTScore-dir output_lung6_pca/lung_final_NTScore \
--o analysis_lung6_pca -l lung_final.log
+--NN-dir lung6/output/NN \
+--GNN-dir lung6/output/GNN \
+--NT-dir lung6/output/NT \
+-o lung6/analysis > lung_analysis.log
 
 ##%######################################################%##
 #                                                          #
@@ -147,7 +144,7 @@ library(ggplot2)
 library(dplyr)
 
 # create a table with metadata and scaled expression
-nt_score <- read.csv("output_lung6_pca/lung_final_NTScore/Lung6_NTScore.csv.gz")
+nt_score <- read.csv("lung6/output/NT/cell_NTScore.csv.gz")
 
 scaled_expression <- as.data.frame(t(as.matrix(getExpression(new_giotto_object,
                                                              values = "scaled",
@@ -178,7 +175,7 @@ nt_score %>%
         axis.text = element_blank(),
         axis.ticks.length = unit(0, "in"),
         panel.border = element_rect(linewidth = 2)) 
-ggsave("analysis_lung6_pca/expression_cd68.png",
+ggsave("lung6/analysis/expression_cd68.png",
        scale = 1, dpi = 300, width = 8, height = 7)
 
 ## Epithelial
@@ -197,7 +194,7 @@ nt_score %>%
         axis.text = element_blank(),
         axis.ticks.length = unit(0, "in"),
         panel.border = element_rect(linewidth = 2)) 
-ggsave("analysis_lung6_pca/expression_serpina1.png",
+ggsave("lung6/analysis/expression_serpina1.png",
        scale = 1, dpi = 300, width = 8, height = 7)
 
 
@@ -217,7 +214,7 @@ nt_score %>%
         axis.text = element_blank(),
         axis.ticks.length = unit(0, "in"),
         panel.border = element_rect(linewidth = 2)) 
-ggsave("analysis_lung6_pca/expression_egfr.png",
+ggsave("lung6/analysis/expression_egfr.png",
        scale = 1, dpi = 300, width = 8, height = 7)
 
 
@@ -276,7 +273,7 @@ normalized_expression %>%
         axis.title = element_text(size = 26),
         axis.text = element_text(size = 26),
         panel.border = element_rect(linewidth = 2))
-ggsave("analysis_lung6_pca/scatterplot_EGFR.png",
+ggsave("lung6/analysis/scatterplot_EGFR.png",
        scale = 1, dpi = 300, width = 8, height = 7)
 
 normalized_expression %>% 
@@ -293,7 +290,7 @@ normalized_expression %>%
         axis.title = element_text(size = 26),
         axis.text = element_text(size = 26),
         panel.border = element_rect(linewidth = 2))
-ggsave("analysis_lung6_pca/scatterplot_KRT17.png",
+ggsave("lung6/analysis/scatterplot_KRT17.png",
        scale = 1, dpi = 300, width = 8, height = 7)
 
 # plot top negative correlation
@@ -316,7 +313,7 @@ normalized_expression %>%
         axis.title = element_text(size = 26),
         axis.text = element_text(size = 26),
         panel.border = element_rect(linewidth = 2))
-ggsave("analysis_lung6_pca/scatterplot_CD74.png",
+ggsave("lung6/analysis/scatterplot_CD74.png",
        scale = 1, dpi = 300, width = 8, height = 7)
 
 normalized_expression %>% 
@@ -333,6 +330,6 @@ normalized_expression %>%
         axis.title = element_text(size = 26),
         axis.text = element_text(size = 26),
         panel.border = element_rect(linewidth = 2))
-ggsave("analysis_lung6_pca/scatterplot_HLA-DRB1.png",
+ggsave("lung6/analysis/scatterplot_HLA-DRB1.png",
        scale = 1, dpi = 300, width = 8, height = 7)
 
