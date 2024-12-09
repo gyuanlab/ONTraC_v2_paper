@@ -86,9 +86,11 @@ embeddings_data <- data.frame(Cell_ID = metadata$cell_ID,
                               Embedding_9 = pca_table$Dim.9,
                               Embedding_10 = pca_table$Dim.10)
                               
-write.csv(metadata_embeddings, "metadata_embeddings.csv", row.names = FALSE)
+write.csv(metadata_embeddings, "metadata_embeddings.csv", 
+          row.names = FALSE, quote = FALSE)
 
-write.csv(embeddings_data, "embeddings_data.csv", row.names = FALSE)
+write.csv(embeddings_data, "embeddings_data.csv", 
+          row.names = FALSE, quote = FALSE)
 
 ##%######################################################%##
 #                                                          #
@@ -106,9 +108,10 @@ ONTraC --meta-input metadata_embeddings.csv \
 --NN-dir lung6/output/NN \
 --GNN-dir lung6/output/GNN \
 --NT-dir lung6/output/NT \
---embedding-adjust True --device cpu --n-cpu 10 --epochs 400 -s 42 \
---patience 100  --min-delta 0.001 --min-epochs 50 --lr 0.03 \
---hidden-feats 4  -k 4 --n-neighbors 200 --embedding-adjust True \
+--embedding-adjust True \
+--device cpu --n-cpu 10 --epochs 400 -s 42 \
+--patience 100 --min-delta 0.001 --min-epochs 50 --lr 0.03 \
+--hidden-feats 4 -k 4 --n-neighbors 200 \
 --beta 0.3 --equal-space 2>&1 > lung.log
 
 ONTraC_analysis --meta-input metadata_embeddings.csv \
